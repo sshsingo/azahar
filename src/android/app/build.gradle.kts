@@ -114,6 +114,9 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // Test build: install alongside the official release (app name in src/release/res)
+            applicationIdSuffix = ".test"
+            versionNameSuffix = "-test"
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
