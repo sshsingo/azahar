@@ -497,6 +497,18 @@ static const char* android_config_default_file_content = (BOOST_HANA_STRING(R"(
 # Defaults to 0.
 )") DECLARE_KEY(init_ticks_override) BOOST_HANA_STRING(R"(
 
+# How the battery state reported to the system is determined
+# 0 (default): Use the host system's battery state, 1: Use the fixed values below
+)") DECLARE_KEY(battery_state_source) BOOST_HANA_STRING(R"(
+
+# Whether the battery is reported as charging when battery_state_source is Fixed
+# 1 (default): Yes, 0: No
+)") DECLARE_KEY(battery_charging) BOOST_HANA_STRING(R"(
+
+# Battery charge level reported when battery_state_source is Fixed. Range from 0 to 4.
+# Defaults to 0.
+)") DECLARE_KEY(battery_level) BOOST_HANA_STRING(R"(
+
 # Number of steps per hour reported by the pedometer. Range from 0 to 65,535.
 # Defaults to 0.
 )") DECLARE_KEY(steps_per_hour) BOOST_HANA_STRING(R"(
