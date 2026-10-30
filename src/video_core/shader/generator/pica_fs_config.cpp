@@ -20,7 +20,7 @@ using AlphaModifier = TevStageConfig::AlphaModifier;
 using Operation = TevStageConfig::Operation;
 
 // Set to false to remove the per draw overhead of RecordFSConfigStats.
-constexpr bool EnableFSConfigStats = true;
+constexpr bool EnableFSConfigStats = false;
 
 // Must match the pass-through detection of the fragment shader generators.
 bool IsPassThroughTevStage(const TevStageConfig& stage) {
