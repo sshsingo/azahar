@@ -409,6 +409,7 @@ void ShaderProgramManager::UseTrivialGeometryShader() {
 void ShaderProgramManager::UseFragmentShader(const Pica::RegsInternal& regs,
                                              const Pica::Shader::UserConfig& user) {
     const FSConfig fs_config{regs};
+    Pica::Shader::RecordFSConfigStats(regs, fs_config);
     auto [hash, handle, result] = impl->fragment_shaders.Get(fs_config, user, impl->profile);
     impl->current.fs = handle;
     impl->current.fs_hash = hash;

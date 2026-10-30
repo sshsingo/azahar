@@ -193,6 +193,14 @@ struct TextureConfig {
 
     void ApplyProfile(const Profile& profile);
 
+    /// Resets TEV stage state that does not affect the generated shader, so that equivalent
+    /// configurations share a cache entry. Returns a bitmask (indexed by TevStageConfig::Source)
+    /// of the sources read by TEV stages whose output is actually consumed.
+    u32 CanonicalizeTevStages();
+
+    /// Resets per texture unit state for units that are never sampled by the shader.
+    void CanonicalizeTextureUnits(const std::array<bool, 4>& units_used);
+
     static consteval u64 StructHash() {
         constexpr u64 STRUCT_VERSION = 0;
 
@@ -394,7 +402,7 @@ union UserConfig {
 static_assert(std::has_unique_object_representations_v<UserConfig>);
 
 struct FSConfig {
-    explicit FSConfig(const Pica::RegsInternal& regs);
+    explicit FSConfig(const Pica::RegsInternal& regs, bool canonicalize = true);
 
     [[nodiscard]] bool TevStageUpdatesCombinerBufferColor(u32 stage_index) const {
         return (stage_index < 4) && (texture.combiner_buffer_input & (1 << stage_index));
@@ -418,6 +426,10 @@ struct FSConfig {
         texture.ApplyProfile(profile);
     }
 
+    /// Resets all state that does not affect the generated shader, reducing the number of
+    /// distinct configurations that need to be compiled.
+    void Canonicalize();
+
     bool operator==(const FSConfig& other) const noexcept {
         return std::memcmp(this, &other, sizeof(FSConfig)) == 0;
     }
@@ -432,7 +444,8 @@ struct FSConfig {
     ProcTexConfig proctex;
 
     static consteval u64 StructHash() {
-        constexpr u64 STRUCT_VERSION = 0;
+        // Version 1: configurations are canonicalized, see FSConfig::Canonicalize
+        constexpr u64 STRUCT_VERSION = 1;
 
         using T = FSConfig;
         return Common::HashCombine(STRUCT_VERSION,
@@ -451,6 +464,10 @@ struct FSConfig {
 };
 static_assert(std::has_unique_object_representations_v<FSConfig>);
 static_assert(std::is_trivially_copyable_v<FSConfig>);
+
+/// Tracks how many distinct raw and canonicalized fragment shader configurations were seen,
+/// to measure how many shader compilations the canonicalization saves.
+void RecordFSConfigStats(const Pica::RegsInternal& regs, const FSConfig& config);
 
 } // namespace Pica::Shader
 
